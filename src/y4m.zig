@@ -53,7 +53,6 @@ pub const Y4MHeader = struct {
 pub const Y4MReader = struct {
     header: Y4MHeader,
     file: fs.File,
-    reader: fs.File.Reader,
     frame_size: u32,
 
     const Self = @This();
@@ -61,7 +60,6 @@ pub const Y4MReader = struct {
     pub fn init(file: fs.File) !Y4MReader {
         var self = Y4MReader{
             .file = file,
-            .reader = file.reader(),
             .header = undefined,
             .frame_size = undefined,
         };
@@ -74,7 +72,7 @@ pub const Y4MReader = struct {
     pub fn deinit(_: *Self) void {}
 
     fn readY4MHeader(self: *Self) !void {
-        var r = self.reader;
+        var r = self.file.reader();
         var buf: [1024]u8 = undefined;
 
         // Read until '\n'
