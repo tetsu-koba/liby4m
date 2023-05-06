@@ -5,6 +5,7 @@ const mem = std.mem;
 const fmt = std.fmt;
 
 pub const Y4MSignature = "YUV4MPEG2";
+pub const frame_header = "FRAME\n";
 
 pub const Color = enum {
     unknown,
@@ -142,7 +143,6 @@ pub const Y4MReader = struct {
     }
 
     pub fn readFrame(self: *Self, frame: []u8) !usize {
-        const frame_header = "FRAME\n";
         var buf: [frame_header.len]u8 = undefined;
         if (frame_header.len != try self.file.readAll(&buf)) {
             return error.EndOfStream;
@@ -154,7 +154,6 @@ pub const Y4MReader = struct {
     }
 
     pub fn skipFrame(self: *Self) !void {
-        const frame_header = "FRAME\n";
         var buf: [frame_header.len]u8 = undefined;
         if (frame_header.len != try self.file.readAll(&buf)) {
             return error.EndOfStream;
@@ -194,7 +193,6 @@ pub const Y4MWriter = struct {
     }
 
     pub fn writeY4MFrame(self: *Self, frame: []const u8) !void {
-        const frame_header = "FRAME\n";
         try self.file.writeAll(frame_header);
         try self.file.writeAll(frame);
     }
