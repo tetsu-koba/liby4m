@@ -182,9 +182,8 @@ pub const Y4MWriter = struct {
     pub fn deinit(_: *Self) void {}
 
     fn writeY4MHeader(self: *Self, header: *const Y4MHeader) !void {
-        var buf: [1024]u8 = undefined;
         const color_str = try header.colorStr();
-        const data = try std.fmt.bufPrint(&buf, "{s} C{s} W{d} H{d} Ip F{d}:{d} A1:1\n", .{
+        try self.file.writer().print("{s} C{s} W{d} H{d} Ip F{d}:{d} A1:1\n", .{
             Y4MSignature,
             color_str,
             header.width,
@@ -192,7 +191,6 @@ pub const Y4MWriter = struct {
             header.frame_rate,
             header.time_scale,
         });
-        try self.file.writeAll(data);
     }
 
     pub fn writeY4MFrame(self: *Self, frame: []const u8) !void {
