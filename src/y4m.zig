@@ -75,15 +75,14 @@ pub const Y4MReader = struct {
         if (count == 0) {
             return error.Y4MFormat;
         }
+        
         var it = mem.split(u8, buf[0..count], " ");
         if (it.next()) |v| {
-            std.debug.print("v=[{s}]\n", .{v});
             if (!mem.eql(u8, v, Y4MSignature)) {
                 return error.Y4MFormat;
             }
         }
         while (it.next()) |v| {
-            std.debug.print("v=[{s}]\n", .{v});
             switch (v[0]) {
                 'C' => {
                     if (mem.eql(u8, v[1..], "420")) {
