@@ -18,6 +18,36 @@ pub const Y4MHeader = struct {
     frame_rate: u32,
     time_scale: u32,
     color: Color,
+
+    const Self = @This();
+
+    pub fn frameSize(self: *Self) !u32 {
+        switch (self.color) {
+            Color.i420 => {
+                return self.width * self.height * 3 / 2;
+            },
+            Color.i422 => {
+                return self.width * self.height * 2;
+            },
+            else => {
+                return error.Y4MFormat;
+            },
+        }
+    }
+
+    pub fn colorStr(self: *const Self) ![]const u8 {
+        switch (self.color) {
+            Color.i420 => {
+                return "420";
+            },
+            Color.i422 => {
+                return "422";
+            },
+            else => {
+                return error.Y4MFormat;
+            },
+        }
+    }
 };
 
 pub const Y4MReader = struct {
@@ -37,25 +67,11 @@ pub const Y4MReader = struct {
         };
         self.header.color = Color.unknown;
         try self.readY4MHeader();
-        self.frame_size = try self.frameSize();
+        self.frame_size = try self.header.frameSize();
         return self;
     }
 
     pub fn deinit(_: *Self) void {}
-
-    pub fn frameSize(self: *Self) !u32 {
-        switch (self.header.color) {
-            Color.i420 => {
-                return self.header.width * self.header.height * 3 / 2;
-            },
-            Color.i422 => {
-                return self.header.width * self.header.height * 2;
-            },
-            else => {
-                return error.Y4MFormat;
-            },
-        }
-    }
 
     fn readY4MHeader(self: *Self) !void {
         var r = self.reader;
@@ -75,7 +91,7 @@ pub const Y4MReader = struct {
         if (count == 0) {
             return error.Y4MFormat;
         }
-        
+
         var it = mem.split(u8, buf[0..count], " ");
         if (it.next()) |v| {
             if (!mem.eql(u8, v, Y4MSignature)) {
@@ -149,5 +165,41 @@ pub const Y4MReader = struct {
             return error.Y4MFormat;
         }
         try self.file.seekBy(self.frame_size);
+    }
+};
+
+pub const Y4MWriter = struct {
+    file: fs.File,
+
+    const Self = @This();
+
+    pub fn init(file: fs.File, header: *const Y4MHeader) !Y4MWriter {
+        var self = Y4MWriter{
+            .file = file,
+        };
+        try self.writeY4MHeader(header);
+        return self;
+    }
+
+    pub fn deinit(_: *Self) void {}
+
+    fn writeY4MHeader(self: *Self, header: *const Y4MHeader) !void {
+        var buf: [1024]u8 = undefined;
+        const color_str = try header.colorStr();
+        const data = try std.fmt.bufPrint(&buf, "{s} C{s} W{d} H{d} Ip F{d}:{d} A1:1\n", .{
+            Y4MSignature,
+            color_str,
+            header.width,
+            header.height,
+            header.frame_rate,
+            header.time_scale,
+        });
+        try self.file.writeAll(data);
+    }
+
+    pub fn writeY4MFrame(self: *Self, frame: []const u8) !void {
+        const frame_header = "FRAME\n";
+        try self.file.writeAll(frame_header);
+        try self.file.writeAll(frame);
     }
 };
