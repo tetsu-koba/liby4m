@@ -16,8 +16,8 @@ fn checkY4M(filename: []const u8) !void {
     try testing.expect(reader.header.color == Y4M.Color.i420);
     try testing.expect(reader.header.width == 160);
     try testing.expect(reader.header.height == 120);
-    try testing.expect(reader.header.frame_rate == 15);
-    try testing.expect(reader.header.time_scale == 1);
+    try testing.expect(reader.header.framerate_num == 15);
+    try testing.expect(reader.header.framerate_den == 1);
 
     var frame_count: usize = 0;
     while (true) {
@@ -45,8 +45,8 @@ fn copyY4M(filename: []const u8, outfiename: []const u8) !void {
     try testing.expect(reader.header.color == Y4M.Color.i420);
     try testing.expect(reader.header.width == 160);
     try testing.expect(reader.header.height == 120);
-    try testing.expect(reader.header.frame_rate == 15);
-    try testing.expect(reader.header.time_scale == 1);
+    try testing.expect(reader.header.framerate_num == 15);
+    try testing.expect(reader.header.framerate_den == 1);
 
     var writer = try Y4M.Y4MWriter.init(outfile, &reader.header);
     defer writer.deinit();

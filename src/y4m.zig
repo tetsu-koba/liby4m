@@ -16,8 +16,8 @@ pub const Color = enum {
 pub const Y4MHeader = struct {
     width: u16,
     height: u16,
-    frame_rate: u32,
-    time_scale: u32,
+    framerate_num: u32,
+    framerate_den: u32,
     color: Color,
 
     const Self = @This();
@@ -117,12 +117,12 @@ pub const Y4MReader = struct {
                 'F' => {
                     var it2 = mem.split(u8, v[1..], ":");
                     if (it2.next()) |v2| {
-                        self.header.frame_rate = try fmt.parseInt(u32, v2, 10);
+                        self.header.framerate_num = try fmt.parseInt(u32, v2, 10);
                     } else {
                         return error.Y4MFormat;
                     }
                     if (it2.next()) |v2| {
-                        self.header.time_scale = try fmt.parseInt(u32, v2, 10);
+                        self.header.framerate_den = try fmt.parseInt(u32, v2, 10);
                     } else {
                         return error.Y4MFormat;
                     }
@@ -187,8 +187,8 @@ pub const Y4MWriter = struct {
             color_str,
             header.width,
             header.height,
-            header.frame_rate,
-            header.time_scale,
+            header.framerate_num,
+            header.framerate_den,
         });
     }
 

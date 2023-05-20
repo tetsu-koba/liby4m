@@ -30,8 +30,8 @@ pub fn dumpY4MFile(filename: []const u8) !void {
     std.debug.print("  Coor: {}\n", .{reader.header.color});
     std.debug.print("  Width: {d}\n", .{reader.header.width});
     std.debug.print("  Height: {d}\n", .{reader.header.height});
-    std.debug.print("  Frame Rate: {d}\n", .{reader.header.frame_rate});
-    std.debug.print("  Time Scale: {d}\n", .{reader.header.time_scale});
+    std.debug.print("  Num of framerate: {d}\n", .{reader.header.framerate_num});
+    std.debug.print("  Den of framerate: {d}\n", .{reader.header.framerate_den});
 
     // Read Y4M frame headers until the end of the file
     var frame_count: usize = 0;
