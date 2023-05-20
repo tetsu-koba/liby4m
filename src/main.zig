@@ -1,7 +1,6 @@
 const std = @import("std");
 const fs = std.fs;
 const io = std.io;
-const mem = std.mem;
 const os = std.os;
 
 const Y4M = @import("y4m.zig");
@@ -15,7 +14,7 @@ pub fn main() !void {
         std.debug.print("Usage: {s} y4m-file\n", .{args[0]});
         os.exit(1);
     }
-    const filename = std.mem.sliceTo(args[1], 0);
+    const filename = args[1];
     try dumpY4MFile(filename);
 }
 
